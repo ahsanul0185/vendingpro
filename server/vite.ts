@@ -84,7 +84,6 @@
 //   });
 // }
 
-
 import type { Express } from "express";
 import path from "path";
 import fs from "fs";
@@ -132,28 +131,51 @@ export function serveStatic(app: Express): void {
   // Serve static files from dist/public in production
   const publicDir = path.resolve(__dirname, "..", "dist", "public");
 
-  log(`Serving static files from: ${publicDir}`);
+  log(`Attempting to serve static files from: ${publicDir}`);
 
   // Check if public directory exists
-  if (fs.existsSync(publicDir)) {
-    app.use(express.static(publicDir));
-
-    // SPA fallback: serve index.html for all unknown routes
-    app.use("*", (req, res) => {
-      const indexPath = path.join(publicDir, "index.html");
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(404).send("Client build not found. Run npm run build");
+  if (!fs.existsSync(publicDir)) {
+    log(`ERROR: Public directory not found at ${publicDir}`);
+    log(`Current __dirname: ${__dirname}`);
+    log(`Contents of dist directory:`);
+    try {
+      const distDir = path.resolve(__dirname, "..", "dist");
+      if (fs.existsSync(distDir)) {
+        const files = fs.readdirSync(distDir);
+        log(`  ${files.join(", ")}`);
       }
-    });
-  } else {
-    log(`WARNING: Public directory not found at ${publicDir}`);
+    } catch (e) {
+      log(`  Could not read dist directory`);
+    }
+    
+    // Fallback: serve 404
     app.use("*", (req, res) => {
       res.status(404).json({
         error: "Client build not found",
-        message: "Run npm run build before starting production server",
+        message: "dist/public directory is missing. Run npm run build",
+        debug: { publicDir, __dirname },
       });
     });
+    return;
   }
+
+  log(`SUCCESS: Serving static files from ${publicDir}`);
+  
+  // Serve static files
+  app.use(express.static(publicDir));
+
+  // SPA fallback: serve index.html for all unknown routes
+  app.use("*", (req, res) => {
+    const indexPath = path.join(publicDir, "index.html");
+    if (fs.existsSync(indexPath)) {
+      log(`Serving index.html for route: ${req.path}`);
+      res.sendFile(indexPath);
+    } else {
+      log(`ERROR: index.html not found at ${indexPath}`);
+      res.status(404).json({
+        error: "index.html not found",
+        path: indexPath,
+      });
+    }
+  });
 }

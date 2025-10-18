@@ -30,6 +30,7 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 # Copy built application from builder stage
+# Both dist/index.js (server) and dist/public (client) should be here
 COPY --from=builder /app/dist ./dist
 
 # Expose port (matches your server configuration)
