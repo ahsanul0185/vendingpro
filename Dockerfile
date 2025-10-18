@@ -13,12 +13,10 @@ RUN npm ci
 COPY . .
 
 # Build the application
-# This runs: vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 RUN npm run build
 
 # Production stage
 FROM node:18-alpine
-
 
 WORKDIR /app
 
@@ -47,4 +45,3 @@ ENTRYPOINT ["dumb-init", "--"]
 # Start the application
 # NODE_ENV=production is important for Express to serve static files
 CMD ["node", "--experimental-modules", "dist/index.js"]
-
