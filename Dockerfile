@@ -44,5 +44,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
-# NODE_ENV=production is important for Express to serve static files
-CMD ["node", "--experimental-modules", "dist/index.js"]
+CMD ["node", "dist/index.js"]
