@@ -39,8 +39,6 @@
 //   },
 // });
 
-
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -76,11 +74,9 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     // IMPORTANT: Set to false so esbuild server output in dist/ is not deleted
     emptyOutDir: false,
-    // Optimize for production
-    minify: "terser",
+    // Use default minification (esbuild) instead of terser
+    minify: true,
     sourcemap: false,
-    // Manifest for asset tracking (optional but recommended)
-    manifest: true,
     rollupOptions: {
       output: {
         // Organize assets in subdirectories
