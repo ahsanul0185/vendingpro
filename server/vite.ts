@@ -85,12 +85,17 @@
 // }
 
 
-import type { Express, ViteDevServer } from "express";
+import type { Express } from "express";
 import path from "path";
 import fs from "fs";
 import express from "express";
+import { fileURLToPath } from "url";
 
 export const log = (msg: string) => console.log(`[express] ${msg}`);
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function setupVite(app: Express, server: any): Promise<void> {
   // Only import vite in development
@@ -108,7 +113,7 @@ export async function setupVite(app: Express, server: any): Promise<void> {
 
     try {
       const clientTemplate = path.resolve(
-        import.meta.dirname,
+        __dirname,
         "..",
         "client",
         "index.html"
@@ -125,7 +130,9 @@ export async function setupVite(app: Express, server: any): Promise<void> {
 
 export function serveStatic(app: Express): void {
   // Serve static files from dist/public in production
-  const publicDir = path.resolve(import.meta.dirname, "..", "dist", "public");
+  const publicDir = path.resolve(__dirname, "..", "dist", "public");
+
+  log(`Serving static files from: ${publicDir}`);
 
   // Check if public directory exists
   if (fs.existsSync(publicDir)) {
