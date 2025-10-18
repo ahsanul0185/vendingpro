@@ -47,3 +47,4 @@ ENTRYPOINT ["dumb-init", "--"]
 # Start the application
 # NODE_ENV=production is important for Express to serve static files
 CMD ["node", "--experimental-modules", "dist/index.js"]
+
